@@ -8,6 +8,36 @@ import {
   updateResource,
 } from './services/resourcesApi'
 
+/** Languages the hub highlights for tagging and discovery (community can add others). */
+const SUPPORTED_LANGUAGES = [
+  'Arabic',
+  'Bengali',
+  'Burmese',
+  'Cambodian',
+  'Cantonese',
+  'Chinese',
+  'English',
+  'Farsi',
+  'Fujianese',
+  'Gujarati',
+  'Haitian Creole',
+  'Hindi',
+  'Japanese',
+  'Karen',
+  'Korean',
+  'Laotian',
+  'Mandarin',
+  'Nepali',
+  'Punjabi',
+  'Russian',
+  'Spanish',
+  'Tagalog',
+  'Tamil',
+  'Thai',
+  'Urdu',
+  'Vietnamese',
+]
+
 const initialFormState = {
   title: '',
   description: '',
@@ -16,12 +46,25 @@ const initialFormState = {
   tags: '',
 }
 
+function splitLanguages(value) {
+  if (Array.isArray(value)) {
+    return value.map((lang) => String(lang).trim()).filter(Boolean)
+  }
+  return String(value ?? '')
+    .split(/[,/;]+/)
+    .map((lang) => lang.trim())
+    .filter(Boolean)
+}
+
 function normalizeResource(resource, fallbackId) {
+  const rawLanguage = resource.language ?? resource.languageCode ?? 'Unknown'
+  const languages = splitLanguages(rawLanguage)
   return {
     id: resource.id ?? fallbackId,
     title: resource.title ?? '',
     description: resource.description ?? '',
-    language: resource.language ?? resource.languageCode ?? 'Unknown',
+    language: languages.join(', ') || 'Unknown',
+    languages: languages.length > 0 ? languages : ['Unknown'],
     tags: Array.isArray(resource.tags)
       ? resource.tags
       : String(resource.tags ?? '')
@@ -71,8 +114,15 @@ function App() {
         }
 
         setResources([])
+        const msg = String(error?.message ?? '')
+        const networkish =
+          msg === 'Failed to fetch' ||
+          msg.toLowerCase().includes('networkerror')
+        const hint = networkish
+          ? ' Start the API with `npm run backend:start` (default http://127.0.0.1:4000). Optional root `.env`: `DATABASE_URL`, `PORT`, `VITE_API_BASE_URL` if the API is not on 4000. Then `npm run dev`.'
+          : ''
         setResourceLoadError(
-          `Could not load resources from API. ${error.message}`,
+          `Could not load resources from API. ${error.message}.${hint}`,
         )
       } finally {
         if (isMounted) {
@@ -90,8 +140,15 @@ function App() {
 
   const languageOptions = [
     'All languages',
-    ...new Set(resources.map((resource) => resource.language)),
-  ]
+    ...new Set([
+      ...SUPPORTED_LANGUAGES,
+      ...resources.flatMap((resource) => resource.languages),
+    ]),
+  ].sort((a, b) => {
+    if (a === 'All languages') return -1
+    if (b === 'All languages') return 1
+    return a.localeCompare(b)
+  })
 
   const tagOptions = [
     'All topics',
@@ -101,7 +158,7 @@ function App() {
   const filteredResources = resources.filter((resource) => {
     const languageMatches =
       selectedLanguage === 'All languages' ||
-      resource.language === selectedLanguage
+      resource.languages.includes(selectedLanguage)
     const tagMatches =
       selectedTag === 'All topics' || resource.tags.includes(selectedTag)
 
@@ -224,7 +281,16 @@ function App() {
     setResourceActionError('')
   }
 
-  const handleDeleteResource = async (resourceId) => {
+  const handleDeleteResource = async (resource) => {
+    const confirmed = window.confirm(
+      `Delete "${resource.title}"?\n\nThis action cannot be undone.`,
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    const resourceId = resource.id
     setDeletingResourceId(resourceId)
     setStatusMessage('')
     setResourceActionError('')
@@ -270,7 +336,16 @@ function App() {
         <section className="hero-section">
           <div className="hero-copy">
             <p className="eyebrow">Community Powered</p>
-            <h1>Mental health resources in every language</h1>
+            <h1
+              className="hero-title"
+              style={{
+                lineHeight: '1.15',
+                letterSpacing: '-0.4px',
+                margin: '0 0 12px',
+              }}
+            >
+              Mental health resources in every language
+            </h1>
             <p>
               A welcoming space to discover support tools and share trusted
               resources with multilingual communities.
@@ -307,6 +382,26 @@ function App() {
               <p className="api-feedback error-message">{resourceActionError}</p>
             )}
           </div>
+
+          <section
+            id="languages"
+            className="supported-languages"
+            aria-labelledby="supported-languages-heading"
+          >
+            <h3 id="supported-languages-heading">Supported languages</h3>
+            <p>
+              These are the primary languages we highlight for tagging and
+              filters. Resources in the library may include additional languages
+              as the community grows.
+            </p>
+            <ul className="language-chip-list">
+              {SUPPORTED_LANGUAGES.map((language) => (
+                <li key={language}>
+                  <span className="tag-chip">{language}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
 
           <div className="resource-filters" aria-label="Resource filters">
             <label htmlFor="languageFilter" className="filter-group">
@@ -348,14 +443,33 @@ function App() {
                 <article key={resource.id} className="resource-item">
                   <h3>{resource.title}</h3>
                   <p>{resource.description}</p>
-                  <p className="resource-meta">Language: {resource.language}</p>
-                  <div className="tag-row">
-                    {resource.tags.map((tag) => (
-                      <span key={`${resource.id}-${tag}`} className="tag-chip">
-                        {tag}
-                      </span>
-                    ))}
+
+                  <div className="chip-group">
+                    <p className="resource-meta">Languages:</p>
+                    <div className="tag-row">
+                      {resource.languages.map((lang) => (
+                        <span key={`${resource.id}-lang-${lang}`} className="tag-chip">
+                          {lang}
+                        </span>
+                      ))}
+                    </div>
                   </div>
+
+                  {resource.tags.length > 0 && (
+                    <div className="chip-group">
+                      <p className="resource-meta">Topics:</p>
+                      <div className="tag-row">
+                        {resource.tags.map((tag) => (
+                          <span
+                            key={`${resource.id}-${tag}`}
+                            className="tag-chip"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <a href={resource.url} target="_blank" rel="noreferrer">
                     Visit resource
                   </a>
@@ -370,7 +484,7 @@ function App() {
                     <button
                       type="button"
                       className="inline-btn danger-btn"
-                      onClick={() => handleDeleteResource(resource.id)}
+                      onClick={() => handleDeleteResource(resource)}
                       disabled={deletingResourceId === resource.id}
                     >
                       {deletingResourceId === resource.id
@@ -388,11 +502,12 @@ function App() {
             </p>
           )}
 
-          <article id="languages" className="info-card">
-            <h2>Support many languages</h2>
+          <article className="info-card">
+            <h2>Translation support</h2>
             <p>
-              We are building language tagging and translation support to reduce
-              access barriers.
+              Summaries can be provided when submitting a resource. Automatic
+              translation can be wired in later via the backend translation
+              service.
             </p>
           </article>
         </section>

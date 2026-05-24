@@ -1,12 +1,25 @@
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000').replace(
-  /\/$/,
-  '',
-)
+// In production the frontend is served by the same Express process as the API, so an
+// empty base URL makes fetch() use same-origin (relative) requests. In dev, the .env
+// file sets VITE_API_BASE_URL to the local backend (e.g. http://localhost:4000).
+function resolveApiOrigin() {
+  const raw = import.meta.env.VITE_API_BASE_URL
+  const trimmed = raw != null ? String(raw).trim() : ''
+  return trimmed.replace(/\/$/, '')
+}
+
+const API_BASE_URL = resolveApiOrigin()
 
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, options)
   const rawBody = await response.text()
-  const data = rawBody ? JSON.parse(rawBody) : null
+  let data = null
+  if (rawBody) {
+    try {
+      data = JSON.parse(rawBody)
+    } catch {
+      data = null
+    }
+  }
 
   if (!response.ok) {
     const message =

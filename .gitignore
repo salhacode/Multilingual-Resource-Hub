@@ -12,10 +12,8 @@ node_modules
 dist
 dist-ssr
 
-# Environment files
+# Single env file at repo root (VITE_* + DATABASE_URL, etc.)
 .env
-.env.local
-*.local
 
 # Editor directories and files
 .vscode/*

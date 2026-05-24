@@ -72,7 +72,13 @@ main {
 }
 
 .hero-copy h1 {
-  margin-top: 0;
+  margin: 0 0 12px;
+  font-size: clamp(2rem, 4.6vw, 3.25rem);
+  line-height: 1.15;
+  letter-spacing: -0.4px;
+  word-break: normal;
+  overflow-wrap: break-word;
+  text-wrap: balance;
 }
 
 .hero-actions {
@@ -136,6 +142,39 @@ main {
 .resources-header h2 {
   margin-top: 0;
   margin-bottom: 8px;
+}
+
+.supported-languages {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  text-align: left;
+  background: var(--panel);
+}
+
+.supported-languages h3 {
+  margin: 0 0 8px;
+  color: var(--text-h);
+  font-size: 1.1rem;
+}
+
+.supported-languages > p {
+  margin: 0 0 12px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.language-chip-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.language-chip-list li {
+  margin: 0;
 }
 
 .api-feedback {
@@ -222,11 +261,28 @@ main {
 }
 
 .tag-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: var(--soft-pink);
   color: var(--text-h);
   border-radius: 999px;
   font-size: 0.85rem;
-  padding: 4px 10px;
+  line-height: 1;
+  height: 32px;
+  padding: 0 12px;
+}
+
+.chip-group {
+  display: grid;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.resource-meta {
+  font-weight: 600;
+  margin: 2px 0 0;
+  color: var(--text-h);
 }
 
 .resource-item a {
