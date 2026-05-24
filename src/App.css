@@ -131,6 +131,76 @@ main {
   margin-top: 0;
 }
 
+.submit-section {
+  margin-top: 24px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--panel);
+  padding: 20px;
+  text-align: left;
+}
+
+.submit-header h2 {
+  margin-top: 0;
+}
+
+.submit-header p {
+  margin-bottom: 14px;
+}
+
+.resource-form {
+  display: grid;
+  gap: 12px;
+}
+
+.resource-form label {
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.resource-form input,
+.resource-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+  color: var(--text-h);
+  background: #fff;
+}
+
+.resource-form input:focus,
+.resource-form textarea:focus {
+  outline: 2px solid var(--accent-border);
+  border-color: transparent;
+}
+
+.field-error {
+  color: #b12467;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.two-column-fields {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.form-submit-btn {
+  justify-self: start;
+  cursor: pointer;
+}
+
+.form-status {
+  margin: 0;
+  font-weight: 600;
+  color: var(--accent);
+}
+
 @media (max-width: 920px) {
   .site-header {
     flex-direction: column;
@@ -157,6 +227,10 @@ main {
   }
 
   .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .two-column-fields {
     grid-template-columns: 1fr;
   }
 }
