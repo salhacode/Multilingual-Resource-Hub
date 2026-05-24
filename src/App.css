@@ -119,6 +119,116 @@ main {
   gap: 14px;
 }
 
+.resources-section {
+  margin-top: 24px;
+  display: grid;
+  gap: 14px;
+}
+
+.resources-header {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  text-align: left;
+  background: var(--panel);
+}
+
+.resources-header h2 {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.resource-filters {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  background: var(--panel);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.filter-group {
+  display: grid;
+  gap: 6px;
+  color: var(--text-h);
+  font-weight: 600;
+  text-align: left;
+}
+
+.filter-group select {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+  color: var(--text-h);
+  background: #fff;
+}
+
+.resource-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.resource-item {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  text-align: left;
+  background: var(--panel);
+  display: grid;
+  gap: 8px;
+}
+
+.resource-item h3 {
+  margin: 0;
+  color: var(--text-h);
+}
+
+.resource-item p {
+  margin: 0;
+}
+
+.resource-meta {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-chip {
+  background: var(--soft-pink);
+  color: var(--text-h);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  padding: 4px 10px;
+}
+
+.resource-item a {
+  width: fit-content;
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.resource-item a:hover {
+  text-decoration: underline;
+}
+
+.empty-state {
+  margin: 0;
+  border: 1px dashed var(--accent-border);
+  border-radius: 12px;
+  padding: 14px;
+  background: #fff;
+  text-align: left;
+}
+
 .info-card {
   border: 1px solid var(--border);
   border-radius: 14px;
@@ -227,6 +337,11 @@ main {
   }
 
   .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .resource-filters,
+  .resource-list {
     grid-template-columns: 1fr;
   }
 

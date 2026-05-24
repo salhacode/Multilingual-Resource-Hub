@@ -2,6 +2,54 @@ import { useState } from 'react'
 import heroImg from './assets/hero.png'
 import './App.css'
 
+const sampleResources = [
+  {
+    id: 1,
+    title: 'Crisis Text Line',
+    description:
+      'Free text-based crisis counseling available 24/7 with trained responders.',
+    language: 'English',
+    tags: ['crisis', 'text', 'youth'],
+    url: 'https://www.crisistextline.org/',
+  },
+  {
+    id: 2,
+    title: 'Linea 988 en Espanol',
+    description:
+      'Spanish-language phone support for urgent emotional distress in the US.',
+    language: 'Spanish',
+    tags: ['hotline', 'crisis', 'phone'],
+    url: 'https://988lifeline.org/help-yourself/en-espanol/',
+  },
+  {
+    id: 3,
+    title: 'Naseeha Muslim Youth Helpline',
+    description:
+      'Confidential support for Muslim youth, including concerns around stress and anxiety.',
+    language: 'Arabic',
+    tags: ['youth', 'faith', 'phone'],
+    url: 'https://naseeha.org/',
+  },
+  {
+    id: 4,
+    title: 'Kids Help Phone',
+    description:
+      'Mental health support and counseling access for young people across Canada.',
+    language: 'French',
+    tags: ['youth', 'chat', 'phone'],
+    url: 'https://kidshelpphone.ca/',
+  },
+  {
+    id: 5,
+    title: 'Mind in Mandarin Community Guide',
+    description:
+      'Practical self-help and community mental health resources in Mandarin.',
+    language: 'Mandarin',
+    tags: ['community', 'self-help', 'guide'],
+    url: 'https://www.mind.org.uk/information-support/',
+  },
+]
+
 const initialFormState = {
   title: '',
   description: '',
@@ -14,6 +62,28 @@ function App() {
   const [formData, setFormData] = useState(initialFormState)
   const [errors, setErrors] = useState({})
   const [statusMessage, setStatusMessage] = useState('')
+  const [selectedLanguage, setSelectedLanguage] = useState('All languages')
+  const [selectedTag, setSelectedTag] = useState('All topics')
+
+  const languageOptions = [
+    'All languages',
+    ...new Set(sampleResources.map((resource) => resource.language)),
+  ]
+
+  const tagOptions = [
+    'All topics',
+    ...new Set(sampleResources.flatMap((resource) => resource.tags)),
+  ]
+
+  const filteredResources = sampleResources.filter((resource) => {
+    const languageMatches =
+      selectedLanguage === 'All languages' ||
+      resource.language === selectedLanguage
+    const tagMatches =
+      selectedTag === 'All topics' || resource.tags.includes(selectedTag)
+
+    return languageMatches && tagMatches
+  })
 
   const handleInputChange = (event) => {
     const { name, value } = event.target
@@ -116,26 +186,79 @@ function App() {
           />
         </section>
 
-        <section id="resources" className="info-grid">
-          <article className="info-card">
-            <h2>Find what helps</h2>
+        <section id="resources" className="resources-section">
+          <div className="resources-header">
+            <h2>Resource library</h2>
             <p>
-              Search by language, topic, and format so people can quickly find
-              support they understand.
+              Filter by language or topic to quickly find support resources for
+              different community needs.
             </p>
-          </article>
+          </div>
+
+          <div className="resource-filters" aria-label="Resource filters">
+            <label htmlFor="languageFilter" className="filter-group">
+              Language
+              <select
+                id="languageFilter"
+                value={selectedLanguage}
+                onChange={(event) => setSelectedLanguage(event.target.value)}
+              >
+                {languageOptions.map((language) => (
+                  <option key={language} value={language}>
+                    {language}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label htmlFor="tagFilter" className="filter-group">
+              Topic
+              <select
+                id="tagFilter"
+                value={selectedTag}
+                onChange={(event) => setSelectedTag(event.target.value)}
+              >
+                {tagOptions.map((tag) => (
+                  <option key={tag} value={tag}>
+                    {tag}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          {filteredResources.length > 0 ? (
+            <div className="resource-list">
+              {filteredResources.map((resource) => (
+                <article key={resource.id} className="resource-item">
+                  <h3>{resource.title}</h3>
+                  <p>{resource.description}</p>
+                  <p className="resource-meta">Language: {resource.language}</p>
+                  <div className="tag-row">
+                    {resource.tags.map((tag) => (
+                      <span key={`${resource.id}-${tag}`} className="tag-chip">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <a href={resource.url} target="_blank" rel="noreferrer">
+                    Visit resource
+                  </a>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="empty-state">
+              No resources match your current filters. Try another language or
+              topic.
+            </p>
+          )}
+
           <article id="languages" className="info-card">
             <h2>Support many languages</h2>
             <p>
               We are building language tagging and translation support to reduce
               access barriers.
-            </p>
-          </article>
-          <article className="info-card">
-            <h2>Built for communities</h2>
-            <p>
-              Shared knowledge from community members helps make care pathways
-              easier to access for everyone.
             </p>
           </article>
         </section>
