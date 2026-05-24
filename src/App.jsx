@@ -2,7 +2,7 @@ import { useState } from 'react'
 import heroImg from './assets/hero.png'
 import './App.css'
 
-const sampleResources = [
+const initialResources = [
   {
     id: 1,
     title: 'Crisis Text Line',
@@ -59,6 +59,7 @@ const initialFormState = {
 }
 
 function App() {
+  const [resources, setResources] = useState(initialResources)
   const [formData, setFormData] = useState(initialFormState)
   const [errors, setErrors] = useState({})
   const [statusMessage, setStatusMessage] = useState('')
@@ -67,15 +68,15 @@ function App() {
 
   const languageOptions = [
     'All languages',
-    ...new Set(sampleResources.map((resource) => resource.language)),
+    ...new Set(resources.map((resource) => resource.language)),
   ]
 
   const tagOptions = [
     'All topics',
-    ...new Set(sampleResources.flatMap((resource) => resource.tags)),
+    ...new Set(resources.flatMap((resource) => resource.tags)),
   ]
 
-  const filteredResources = sampleResources.filter((resource) => {
+  const filteredResources = resources.filter((resource) => {
     const languageMatches =
       selectedLanguage === 'All languages' ||
       resource.language === selectedLanguage
@@ -134,7 +135,23 @@ function App() {
     }
 
     setErrors({})
-    setStatusMessage('Submission saved locally. API integration comes next.')
+    const normalizedTags = formData.tags
+      .split(',')
+      .map((tag) => tag.trim())
+      .filter(Boolean)
+    const nextResource = {
+      id: Date.now(),
+      title: formData.title.trim(),
+      description: formData.description.trim(),
+      language: formData.language.trim(),
+      tags: normalizedTags.length > 0 ? normalizedTags : ['general'],
+      url: formData.url.trim(),
+    }
+
+    setResources((previous) => [nextResource, ...previous])
+    setStatusMessage(
+      'Submission saved locally and added to your resource library.',
+    )
     setFormData(initialFormState)
   }
 
