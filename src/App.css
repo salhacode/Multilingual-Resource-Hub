@@ -228,6 +228,7 @@ main {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
+  align-items: start;
 }
 
 .resource-item {
@@ -238,6 +239,7 @@ main {
   background: var(--panel);
   display: grid;
   gap: 8px;
+  align-content: start;
 }
 
 .resource-item h3 {
