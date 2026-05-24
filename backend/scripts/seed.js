@@ -1,6 +1,10 @@
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import pool from '../db/pool.js'
 
-const seedResources = [
+const seedScriptPath = fileURLToPath(import.meta.url)
+
+export const seedResources = [
   {
     title: 'Linea 988 - Ayuda en Espanol',
     description:
@@ -226,12 +230,17 @@ async function seed() {
   console.log(`Seeded ${seedResources.length} resources.`)
 }
 
-seed()
-  .then(async () => {
-    await pool.end()
-  })
-  .catch(async (error) => {
-    await pool.end()
-    console.error('Seeding failed:', error.message)
-    process.exit(1)
-  })
+const isSeedCli =
+  process.argv[1] && path.resolve(process.argv[1]) === seedScriptPath
+
+if (isSeedCli) {
+  seed()
+    .then(async () => {
+      await pool.end()
+    })
+    .catch(async (error) => {
+      await pool.end()
+      console.error('Seeding failed:', error.message)
+      process.exit(1)
+    })
+}

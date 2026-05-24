@@ -36,7 +36,8 @@ function normalizeResourceRow(resource) {
     url: resource.url,
     language: resource.language,
     tags: resource.tags,
-    translatedSummary: resource.translated_summary ?? null,
+    translatedSummary:
+      resource.translatedSummary ?? resource.translated_summary ?? null,
     createdAt: resource.created_at,
     updatedAt: resource.updated_at,
   }
@@ -105,12 +106,19 @@ resourcesRouter.post('/', async (request, response) => {
   `
 
   try {
-    const translatedSummary =
-      translatedSummaryInput ??
+    let translatedSummary =
+      translatedSummaryInput?.toString().trim() ||
       (await translateSummary({
         text: description,
         sourceLanguage: language,
       }))
+
+    if (
+      translatedSummary &&
+      translatedSummary.trim() === description.trim()
+    ) {
+      translatedSummary = null
+    }
 
     const { rows } = await pool.query(insertQuery, [
       title,
@@ -173,12 +181,19 @@ resourcesRouter.put('/:id', async (request, response) => {
   `
 
   try {
-    const translatedSummary =
-      translatedSummaryInput ??
+    let translatedSummary =
+      translatedSummaryInput?.toString().trim() ||
       (await translateSummary({
         text: description,
         sourceLanguage: language,
       }))
+
+    if (
+      translatedSummary &&
+      translatedSummary.trim() === description.trim()
+    ) {
+      translatedSummary = null
+    }
 
     const { rows } = await pool.query(updateQuery, [
       title,

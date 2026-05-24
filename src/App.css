@@ -258,6 +258,18 @@ main {
   margin: 0;
 }
 
+.resource-summary {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff8fc;
+  border: 1px dashed var(--border);
+}
+
+.resource-summary p:last-child {
+  margin: 0;
+  line-height: 1.45;
+}
+
 .resource-meta {
   font-weight: 600;
   color: var(--text-h);

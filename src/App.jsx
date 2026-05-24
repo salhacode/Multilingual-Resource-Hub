@@ -41,6 +41,7 @@ const SUPPORTED_LANGUAGES = [
 const initialFormState = {
   title: '',
   description: '',
+  translatedSummary: '',
   url: '',
   language: '',
   tags: '',
@@ -126,6 +127,10 @@ function normalizeResource(resource, fallbackId) {
           .map((tag) => tag.trim())
           .filter(Boolean),
     url: resource.url ?? '#',
+    translatedSummary:
+      resource.translatedSummary?.toString().trim() ||
+      resource.translated_summary?.toString().trim() ||
+      '',
   }
 }
 
@@ -292,12 +297,14 @@ function App() {
       .split(',')
       .map((tag) => tag.trim())
       .filter(Boolean)
+    const summaryTrimmed = formData.translatedSummary.trim()
     const nextResource = {
       title: formData.title.trim(),
       description: formData.description.trim(),
       language: formData.language.trim(),
       tags: normalizedTags.length > 0 ? normalizedTags : ['general'],
       url: formData.url.trim(),
+      ...(summaryTrimmed ? { translatedSummary: summaryTrimmed } : {}),
     }
     setIsSubmitting(true)
 
@@ -335,6 +342,7 @@ function App() {
     setFormData({
       title: resource.title,
       description: resource.description,
+      translatedSummary: resource.translatedSummary ?? '',
       url: resource.url,
       language: resource.language,
       tags: resource.tags.join(', '),
@@ -387,6 +395,14 @@ function App() {
     <article key={resource.id} className="resource-item">
       <h3>{resource.title}</h3>
       <p>{resource.description}</p>
+
+      {resource.translatedSummary &&
+        resource.translatedSummary.trim() !== resource.description.trim() && (
+          <div className="resource-summary">
+            <p className="resource-meta">English summary</p>
+            <p>{resource.translatedSummary}</p>
+          </div>
+        )}
 
       <div className="chip-group">
         <p className="resource-meta">Languages:</p>
@@ -627,6 +643,18 @@ function App() {
               {errors.description && (
                 <span className="field-error">{errors.description}</span>
               )}
+            </label>
+
+            <label htmlFor="translatedSummary">
+              English summary (optional)
+              <textarea
+                id="translatedSummary"
+                name="translatedSummary"
+                value={formData.translatedSummary}
+                onChange={handleInputChange}
+                rows="2"
+                placeholder="Short English summary for quick scanning"
+              />
             </label>
 
             <label htmlFor="url">
