@@ -19,7 +19,7 @@ Individual project — Salma Halim
 
 ## Features
 
-- Browse 19+ curated US-based mental health resources
+- Browse 20 curated US-based mental health resources
 - Filter by language or topic (crisis, therapy, community, etc.)
 - Add, edit, and delete resources through the UI
 - Each resource lists all supported languages, target communities, and a direct link
