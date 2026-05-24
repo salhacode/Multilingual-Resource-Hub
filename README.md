@@ -125,7 +125,3 @@ Challenges included debugging “Failed to fetch” (CORS and API base URL issue
 
 - **Cursor** — primary development environment; used for implementing features, debugging (Postgres, Vite cache, deployment), verifying resource URLs, and drafting this README.
 - AI assistance was used for code suggestions and troubleshooting; all architectural decisions, data curation, and final code were reviewed and tested locally and on the deployed site.
-
-## Git history
-
-This repository has 21 commits documenting incremental development (frontend, backend, database, API integration, seed data, deployment, and UI fixes).
