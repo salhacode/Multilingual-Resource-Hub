@@ -115,7 +115,7 @@ src/
 
 ## Reflections
 
-This project grew from wanting a practical directory for US mental health resources that are actually language-specific and culturally responsive — not just “available in English with a translation page.” I researched each entry, verified URLs, and matched descriptions to what each organization really offers.
+I built this hub to help people find US mental health resources that offer support in their language. Each listing shows which languages and topics it covers, and users can filter to narrow the list. I researched every entry, checked the links, and wrote descriptions based on what each organization actually provides.
 
 Technically, I learned how to wire a React frontend to an Express API with PostgreSQL, handle CORS and environment variables across dev vs production, and deploy frontend + backend as a single service on Render with Supabase as the database. Setting up migrations and seed data made it easier to reset and demo the app consistently.
 
