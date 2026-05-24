@@ -345,6 +345,7 @@ main {
 
 .submit-section {
   margin-top: 24px;
+  scroll-margin-top: 20px;
   border: 1px solid var(--border);
   border-radius: 18px;
   background: var(--panel);

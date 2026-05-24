@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import heroImg from './assets/hero.png'
 import './App.css'
 import {
@@ -88,6 +88,18 @@ function App() {
   const [deletingResourceId, setDeletingResourceId] = useState(null)
   const [selectedLanguage, setSelectedLanguage] = useState('All languages')
   const [selectedTag, setSelectedTag] = useState('All topics')
+  const submitSectionRef = useRef(null)
+
+  useEffect(() => {
+    if (editingResourceId === null) {
+      return
+    }
+
+    submitSectionRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
+  }, [editingResourceId])
 
   useEffect(() => {
     let isMounted = true
@@ -504,7 +516,11 @@ function App() {
 
         </section>
 
-        <section id="submit" className="submit-section">
+        <section
+          id="submit"
+          ref={submitSectionRef}
+          className="submit-section"
+        >
           <div className="submit-header">
             <h2>
               {editingResourceId ? 'Update resource' : 'Submit a new resource'}
