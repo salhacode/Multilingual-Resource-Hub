@@ -68,7 +68,7 @@ const seedResources = [
     url: 'https://www.asianmhc.org/therapists/',
     language:
       'English, Mandarin, Cantonese, Vietnamese, Korean, Tagalog, Hindi, Urdu, Japanese, Arabic, Bengali, Farsi, Punjabi, Tamil, Thai',
-    tags: ['therapy', 'directory', 'AAPI'],
+    tags: ['therapy', 'directory', 'AAPI', 'South Asian'],
     translatedSummary:
       'Find Asian American therapists in the US filtered by spoken language, state, ethnicity, and specialty.',
   },
@@ -158,7 +158,7 @@ const seedResources = [
       'Brooklyn-based nonprofit that has served NYC immigrant, refugee, and marginalized communities for 30+ years. AAFSC helps families access mental health counseling, government benefits, English classes, citizenship support, affordable housing, parenting workshops, and youth programs, with culturally responsive services for Arab, Middle Eastern, North African, Muslim, and South Asian families.',
     url: 'https://aafscny.org/',
     language: 'Arabic, Bengali, Urdu, English',
-    tags: ['therapy', 'community', 'MENA'],
+    tags: ['therapy', 'community', 'MENA', 'South Asian', 'Black/African American', 'Muslim'],
     translatedSummary:
       'NYC nonprofit providing mental health counseling and family services for Arab, MENA, Muslim, and South Asian families.',
   },
