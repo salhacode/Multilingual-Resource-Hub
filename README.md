@@ -6,10 +6,6 @@ A multilingual mental health resource directory for communities across the Unite
 
 **https://multilingual-resource-hub.onrender.com/**
 
-## Repository
-
-**https://github.com/salhacode/Multilingual-Resource-Hub**
-
 ## Team
 
 Individual project — Salma Halim
