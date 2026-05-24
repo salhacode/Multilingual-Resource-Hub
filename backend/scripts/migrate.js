@@ -4,22 +4,22 @@ import { fileURLToPath } from 'node:url'
 import pool from '../db/pool.js'
 
 const currentDirectory = dirname(fileURLToPath(import.meta.url))
-const migrationsDirectory = join(currentDirectory, '..', 'db', 'migrations')
+const schemaDirectory = join(currentDirectory, '..', 'db')
 
 async function runMigrations() {
-  const files = await readdir(migrationsDirectory)
+  const files = await readdir(schemaDirectory)
   const sqlFiles = files.filter((file) => file.endsWith('.sql')).sort()
 
   if (sqlFiles.length === 0) {
-    console.log('No migration files found.')
+    console.log('No schema SQL files found in backend/db.')
     return
   }
 
   for (const file of sqlFiles) {
-    const filePath = join(migrationsDirectory, file)
+    const filePath = join(schemaDirectory, file)
     const sql = await readFile(filePath, 'utf-8')
     await pool.query(sql)
-    console.log(`Applied migration: ${file}`)
+    console.log(`Applied schema: ${file}`)
   }
 }
 

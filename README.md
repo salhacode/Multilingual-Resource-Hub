@@ -93,8 +93,8 @@ In production the Express server serves the built `dist/` folder, so everything 
 ```
 backend/
   db/
-    migrations/   SQL files run in order by `npm run backend:migrate`
-    pool.js       Postgres connection (loads .env, auto-enables SSL for remote hosts)
+    001_create_resources.sql   Schema applied by `npm run backend:migrate`
+    pool.js                    Postgres connection (loads .env, auto-enables SSL for remote hosts)
   routes/         Express API routes
   scripts/        migrate.js, seed.js
   server.js       Express entry point
