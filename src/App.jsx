@@ -502,14 +502,6 @@ function App() {
             </p>
           )}
 
-          <article className="info-card">
-            <h2>Translation support</h2>
-            <p>
-              Summaries can be provided when submitting a resource. Automatic
-              translation can be wired in later via the backend translation
-              service.
-            </p>
-          </article>
         </section>
 
         <section id="submit" className="submit-section">
