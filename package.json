@@ -8,6 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "prestart": "npm run build",
     "start": "NODE_ENV=production node backend/server.js",
     "backend:dev": "node backend/server.js",
     "backend:migrate": "node backend/scripts/migrate.js",
