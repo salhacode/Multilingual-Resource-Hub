@@ -185,7 +185,7 @@ function App() {
           msg === 'Failed to fetch' ||
           msg.toLowerCase().includes('networkerror')
         const hint = networkish
-          ? ' Start the API with `npm run backend:start` (default http://127.0.0.1:4000). Optional root `.env`: `DATABASE_URL`, `PORT`, `VITE_API_BASE_URL` if the API is not on 4000. Then `npm run dev`.'
+          ? ' Start the API with `npm run backend:dev` (default http://127.0.0.1:4000). Optional root `.env`: `DATABASE_URL`, `PORT`, `VITE_API_BASE_URL` if the API is not on 4000. Then `npm run dev`.'
           : ''
         setResourceLoadError(
           `Could not load resources from API. ${error.message}.${hint}`,

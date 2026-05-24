@@ -10,7 +10,6 @@
     "preview": "vite preview",
     "start": "NODE_ENV=production node backend/server.js",
     "backend:dev": "node backend/server.js",
-    "backend:start": "node backend/server.js",
     "backend:migrate": "node backend/scripts/migrate.js",
     "backend:seed": "node backend/scripts/seed.js"
   },
