@@ -103,6 +103,16 @@ const seedResources = [
       'US therapist directory, podcast, and community for the mental wellness of Black women and girls.',
   },
   {
+    title: 'BEAM – Black Emotional and Mental Health Collective',
+    description:
+      'US collective focused on the healing, wellness, and liberation of Black and marginalized communities. Provides free toolkits on emotional care, peer support, and wellness; virtual trainings; and community workshops that center Black mental and emotional health.',
+    url: 'https://beam.community/',
+    language: 'English',
+    tags: ['education', 'support', 'Black/African American'],
+    translatedSummary:
+      'US collective offering toolkits, trainings, and community resources for Black emotional and mental health.',
+  },
+  {
     title: 'Boriken Neighborhood Health Center – Behavioral Health',
     description:
       'Federally Qualified Health Center in East Harlem, New York City. The Behavioral Health team provides screening, evaluation, individual, group, family and medication therapy, and care coordination for children, adolescents, adults, and seniors, with bilingual Spanish-English staff serving the Puerto Rican and broader Latino community.',

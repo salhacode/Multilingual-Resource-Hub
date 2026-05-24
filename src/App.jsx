@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import heroImg from './assets/hero.png'
 import './App.css'
 import {
@@ -54,6 +54,60 @@ function splitLanguages(value) {
     .split(/[,/;]+/)
     .map((lang) => lang.trim())
     .filter(Boolean)
+}
+
+/** Rough card height for masonry-style column balancing (px). */
+function estimateResourceCardHeight(resource) {
+  const titleLines = Math.ceil((resource.title?.length ?? 0) / 42)
+  const descLines = Math.ceil((resource.description?.length ?? 0) / 72)
+  const langRows = Math.ceil((resource.languages?.length ?? 0) / 4)
+  const tagRows = Math.ceil((resource.tags?.length ?? 0) / 4)
+
+  return (
+    140 +
+    titleLines * 28 +
+    descLines * 22 +
+    langRows * 36 +
+    tagRows * 36
+  )
+}
+
+/** Place each card in whichever column is shorter so items tuck under shorter neighbors. */
+function distributeIntoTwoColumns(items) {
+  const left = []
+  const right = []
+  let leftHeight = 0
+  let rightHeight = 0
+
+  for (const item of items) {
+    const cardHeight = estimateResourceCardHeight(item)
+    if (leftHeight <= rightHeight) {
+      left.push(item)
+      leftHeight += cardHeight + 12
+    } else {
+      right.push(item)
+      rightHeight += cardHeight + 12
+    }
+  }
+
+  return [left, right]
+}
+
+function useMediaQuery(query) {
+  const [matches, setMatches] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return window.matchMedia(query).matches
+  })
+
+  useEffect(() => {
+    const media = window.matchMedia(query)
+    const onChange = () => setMatches(media.matches)
+    media.addEventListener('change', onChange)
+    setMatches(media.matches)
+    return () => media.removeEventListener('change', onChange)
+  }, [query])
+
+  return matches
 }
 
 function normalizeResource(resource, fallbackId) {
@@ -176,6 +230,12 @@ function App() {
 
     return languageMatches && tagMatches
   })
+
+  const useTwoColumnLayout = useMediaQuery('(min-width: 921px)')
+  const [leftColumnResources, rightColumnResources] = useMemo(
+    () => distributeIntoTwoColumns(filteredResources),
+    [filteredResources],
+  )
 
   const handleInputChange = (event) => {
     const { name, value } = event.target
@@ -323,6 +383,57 @@ function App() {
     }
   }
 
+  const renderResourceCard = (resource) => (
+    <article key={resource.id} className="resource-item">
+      <h3>{resource.title}</h3>
+      <p>{resource.description}</p>
+
+      <div className="chip-group">
+        <p className="resource-meta">Languages:</p>
+        <div className="tag-row">
+          {resource.languages.map((lang) => (
+            <span key={`${resource.id}-lang-${lang}`} className="tag-chip">
+              {lang}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {resource.tags.length > 0 && (
+        <div className="chip-group">
+          <p className="resource-meta">Topics:</p>
+          <div className="tag-row">
+            {resource.tags.map((tag) => (
+              <span key={`${resource.id}-${tag}`} className="tag-chip">
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+      <a href={resource.url} target="_blank" rel="noreferrer">
+        Visit resource
+      </a>
+      <div className="resource-actions">
+        <button
+          type="button"
+          className="inline-btn"
+          onClick={() => handleEditResource(resource)}
+        >
+          Edit
+        </button>
+        <button
+          type="button"
+          className="inline-btn danger-btn"
+          onClick={() => handleDeleteResource(resource)}
+          disabled={deletingResourceId === resource.id}
+        >
+          {deletingResourceId === resource.id ? 'Deleting...' : 'Delete'}
+        </button>
+      </div>
+    </article>
+  )
+
   return (
     <div className="app-shell">
       <header className="site-header">
@@ -445,63 +556,26 @@ function App() {
           {isLoadingResources ? (
             <p className="api-feedback loading-message">Loading resources...</p>
           ) : filteredResources.length > 0 ? (
-            <div className="resource-list">
-              {filteredResources.map((resource) => (
-                <article key={resource.id} className="resource-item">
-                  <h3>{resource.title}</h3>
-                  <p>{resource.description}</p>
-
-                  <div className="chip-group">
-                    <p className="resource-meta">Languages:</p>
-                    <div className="tag-row">
-                      {resource.languages.map((lang) => (
-                        <span key={`${resource.id}-lang-${lang}`} className="tag-chip">
-                          {lang}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {resource.tags.length > 0 && (
-                    <div className="chip-group">
-                      <p className="resource-meta">Topics:</p>
-                      <div className="tag-row">
-                        {resource.tags.map((tag) => (
-                          <span
-                            key={`${resource.id}-${tag}`}
-                            className="tag-chip"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+            useTwoColumnLayout ? (
+              <div className="resource-columns">
+                <div className="resource-column">
+                  {leftColumnResources.map((resource) =>
+                    renderResourceCard(resource),
                   )}
-                  <a href={resource.url} target="_blank" rel="noreferrer">
-                    Visit resource
-                  </a>
-                  <div className="resource-actions">
-                    <button
-                      type="button"
-                      className="inline-btn"
-                      onClick={() => handleEditResource(resource)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      className="inline-btn danger-btn"
-                      onClick={() => handleDeleteResource(resource)}
-                      disabled={deletingResourceId === resource.id}
-                    >
-                      {deletingResourceId === resource.id
-                        ? 'Deleting...'
-                        : 'Delete'}
-                    </button>
-                  </div>
-                </article>
-              ))}
-            </div>
+                </div>
+                <div className="resource-column">
+                  {rightColumnResources.map((resource) =>
+                    renderResourceCard(resource),
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="resource-column resource-column--single">
+                {filteredResources.map((resource) =>
+                  renderResourceCard(resource),
+                )}
+              </div>
+            )
           ) : (
             <p className="empty-state">
               No resources match your current filters. Try another language or

@@ -224,11 +224,18 @@ main {
   background: #fff;
 }
 
-.resource-list {
+.resource-columns {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   align-items: start;
+}
+
+.resource-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
 }
 
 .resource-item {
@@ -448,8 +455,11 @@ main {
     grid-template-columns: 1fr;
   }
 
-  .resource-filters,
-  .resource-list {
+  .resource-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .resource-columns {
     grid-template-columns: 1fr;
   }
 
