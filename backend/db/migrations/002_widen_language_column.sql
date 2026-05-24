@@ -1,2 +1,0 @@
-ALTER TABLE resources
-  ALTER COLUMN language TYPE TEXT;
