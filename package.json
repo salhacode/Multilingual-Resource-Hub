@@ -8,8 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "backend:dev": "node --watch backend/src/server.js",
-    "backend:start": "node backend/src/server.js"
+    "backend:dev": "node --watch backend/server.js",
+    "backend:start": "node backend/server.js"
   },
   "dependencies": {
     "express": "^4.19.2",
