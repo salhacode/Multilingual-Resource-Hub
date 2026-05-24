@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import heroImg from './assets/hero.png'
 import './App.css'
+import { createResource, fetchResources } from './services/resourcesApi'
 
 const initialResources = [
   {
@@ -58,13 +59,81 @@ const initialFormState = {
   tags: '',
 }
 
+function normalizeResource(resource, fallbackId) {
+  return {
+    id: resource.id ?? fallbackId,
+    title: resource.title ?? '',
+    description: resource.description ?? '',
+    language: resource.language ?? resource.languageCode ?? 'Unknown',
+    tags: Array.isArray(resource.tags)
+      ? resource.tags
+      : String(resource.tags ?? '')
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter(Boolean),
+    url: resource.url ?? '#',
+  }
+}
+
 function App() {
-  const [resources, setResources] = useState(initialResources)
+  const [resources, setResources] = useState([])
   const [formData, setFormData] = useState(initialFormState)
   const [errors, setErrors] = useState({})
   const [statusMessage, setStatusMessage] = useState('')
+  const [resourceLoadError, setResourceLoadError] = useState('')
+  const [isLoadingResources, setIsLoadingResources] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [selectedLanguage, setSelectedLanguage] = useState('All languages')
   const [selectedTag, setSelectedTag] = useState('All topics')
+
+  useEffect(() => {
+    let isMounted = true
+
+    const loadResources = async () => {
+      setIsLoadingResources(true)
+      setResourceLoadError('')
+
+      try {
+        const apiResources = await fetchResources()
+        if (!isMounted) {
+          return
+        }
+
+        if (apiResources.length === 0) {
+          setResources(initialResources)
+          setResourceLoadError(
+            'API returned no resources. Showing local starter data for now.',
+          )
+          return
+        }
+
+        setResources(
+          apiResources.map((resource, index) =>
+            normalizeResource(resource, Date.now() + index),
+          ),
+        )
+      } catch (error) {
+        if (!isMounted) {
+          return
+        }
+
+        setResources(initialResources)
+        setResourceLoadError(
+          `Could not load resources from API. Showing local data instead. ${error.message}`,
+        )
+      } finally {
+        if (isMounted) {
+          setIsLoadingResources(false)
+        }
+      }
+    }
+
+    loadResources()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   const languageOptions = [
     'All languages',
@@ -124,7 +193,7 @@ function App() {
     return nextErrors
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
     const nextErrors = validateForm()
 
@@ -140,19 +209,32 @@ function App() {
       .map((tag) => tag.trim())
       .filter(Boolean)
     const nextResource = {
-      id: Date.now(),
       title: formData.title.trim(),
       description: formData.description.trim(),
       language: formData.language.trim(),
       tags: normalizedTags.length > 0 ? normalizedTags : ['general'],
       url: formData.url.trim(),
     }
+    setIsSubmitting(true)
 
-    setResources((previous) => [nextResource, ...previous])
-    setStatusMessage(
-      'Submission saved locally and added to your resource library.',
-    )
-    setFormData(initialFormState)
+    try {
+      const createdResource = await createResource(nextResource)
+      const normalizedResource = normalizeResource(createdResource, Date.now())
+      setResources((previous) => [normalizedResource, ...previous])
+      setStatusMessage('Resource submitted successfully.')
+      setFormData(initialFormState)
+    } catch (error) {
+      const fallbackResource = {
+        ...nextResource,
+        id: Date.now(),
+      }
+      setResources((previous) => [fallbackResource, ...previous])
+      setStatusMessage(
+        `API unavailable, so the resource was saved locally. ${error.message}`,
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -210,6 +292,9 @@ function App() {
               Filter by language or topic to quickly find support resources for
               different community needs.
             </p>
+            {resourceLoadError && (
+              <p className="api-feedback error-message">{resourceLoadError}</p>
+            )}
           </div>
 
           <div className="resource-filters" aria-label="Resource filters">
@@ -244,7 +329,9 @@ function App() {
             </label>
           </div>
 
-          {filteredResources.length > 0 ? (
+          {isLoadingResources ? (
+            <p className="api-feedback loading-message">Loading resources...</p>
+          ) : filteredResources.length > 0 ? (
             <div className="resource-list">
               {filteredResources.map((resource) => (
                 <article key={resource.id} className="resource-item">
@@ -360,8 +447,12 @@ function App() {
               </label>
             </div>
 
-            <button type="submit" className="primary-btn form-submit-btn">
-              Submit resource
+            <button
+              type="submit"
+              className="primary-btn form-submit-btn"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Submitting...' : 'Submit resource'}
             </button>
 
             {statusMessage && <p className="form-status">{statusMessage}</p>}
