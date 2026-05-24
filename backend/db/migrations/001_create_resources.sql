@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS resources (
   url TEXT NOT NULL,
   language VARCHAR(100) NOT NULL,
   tags TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
-  translated_summary TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

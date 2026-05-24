@@ -1,6 +1,5 @@
 import { Router } from 'express'
 import pool from '../db/pool.js'
-import { translateSummary } from '../services/translationService.js'
 
 const resourcesRouter = Router()
 
@@ -36,10 +35,8 @@ function normalizeResourceRow(resource) {
     url: resource.url,
     language: resource.language,
     tags: resource.tags,
-    translatedSummary:
-      resource.translatedSummary ?? resource.translated_summary ?? null,
-    createdAt: resource.created_at,
-    updatedAt: resource.updated_at,
+    createdAt: resource.created_at ?? resource.createdAt,
+    updatedAt: resource.updated_at ?? resource.updatedAt,
   }
 }
 
@@ -55,7 +52,6 @@ resourcesRouter.get('/', async (request, response) => {
       url,
       language,
       tags,
-      translated_summary AS "translatedSummary",
       created_at AS "createdAt",
       updated_at AS "updatedAt"
     FROM resources
@@ -83,7 +79,6 @@ resourcesRouter.post('/', async (request, response) => {
   const url = request.body.url?.toString().trim()
   const language = request.body.language?.toString().trim()
   const tags = parseTags(request.body.tags)
-  const translatedSummaryInput = request.body.translatedSummary ?? null
 
   if (!title || !description || !url || !language) {
     response.status(400).json({
@@ -100,33 +95,18 @@ resourcesRouter.post('/', async (request, response) => {
   }
 
   const insertQuery = `
-    INSERT INTO resources (title, description, url, language, tags, translated_summary)
-    VALUES ($1, $2, $3, $4, $5, $6)
+    INSERT INTO resources (title, description, url, language, tags)
+    VALUES ($1, $2, $3, $4, $5)
     RETURNING *
   `
 
   try {
-    let translatedSummary =
-      translatedSummaryInput?.toString().trim() ||
-      (await translateSummary({
-        text: description,
-        sourceLanguage: language,
-      }))
-
-    if (
-      translatedSummary &&
-      translatedSummary.trim() === description.trim()
-    ) {
-      translatedSummary = null
-    }
-
     const { rows } = await pool.query(insertQuery, [
       title,
       description,
       url,
       language,
       tags,
-      translatedSummary,
     ])
 
     response.status(201).json(normalizeResourceRow(rows[0]))
@@ -145,7 +125,6 @@ resourcesRouter.put('/:id', async (request, response) => {
   const url = request.body.url?.toString().trim()
   const language = request.body.language?.toString().trim()
   const tags = parseTags(request.body.tags)
-  const translatedSummaryInput = request.body.translatedSummary ?? null
 
   if (!Number.isInteger(id) || id <= 0) {
     response.status(400).json({ error: 'id must be a positive integer.' })
@@ -174,34 +153,18 @@ resourcesRouter.put('/:id', async (request, response) => {
       url = $3,
       language = $4,
       tags = $5,
-      translated_summary = $6,
       updated_at = NOW()
-    WHERE id = $7
+    WHERE id = $6
     RETURNING *
   `
 
   try {
-    let translatedSummary =
-      translatedSummaryInput?.toString().trim() ||
-      (await translateSummary({
-        text: description,
-        sourceLanguage: language,
-      }))
-
-    if (
-      translatedSummary &&
-      translatedSummary.trim() === description.trim()
-    ) {
-      translatedSummary = null
-    }
-
     const { rows } = await pool.query(updateQuery, [
       title,
       description,
       url,
       language,
       tags,
-      translatedSummary,
       id,
     ])
 
