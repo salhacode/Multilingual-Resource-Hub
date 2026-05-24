@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS resources (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  description TEXT NOT NULL,
+  url TEXT NOT NULL,
+  language VARCHAR(100) NOT NULL,
+  tags TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
+  translated_summary TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
