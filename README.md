@@ -128,4 +128,4 @@ Challenges included debugging “Failed to fetch” (CORS and API base URL issue
 
 ## Git history
 
-This repository has **18+ commits** documenting incremental development (frontend, backend, database, API integration, seed data, deployment, and UI fixes) rather than a single bulk upload.
+This repository has 21 commits documenting incremental development (frontend, backend, database, API integration, seed data, deployment, and UI fixes).
