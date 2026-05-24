@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "backend:dev": "node --watch backend/server.js",
     "backend:start": "node backend/server.js",
-    "backend:migrate": "node backend/scripts/migrate.js"
+    "backend:migrate": "node backend/scripts/migrate.js",
+    "backend:seed": "node backend/scripts/seed.js"
   },
   "dependencies": {
     "express": "^4.19.2",

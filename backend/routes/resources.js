@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import pool from '../db/pool.js'
+import { translateSummary } from '../services/translationService.js'
 
 const resourcesRouter = Router()
 
@@ -81,7 +82,7 @@ resourcesRouter.post('/', async (request, response) => {
   const url = request.body.url?.toString().trim()
   const language = request.body.language?.toString().trim()
   const tags = parseTags(request.body.tags)
-  const translatedSummary = request.body.translatedSummary ?? null
+  const translatedSummaryInput = request.body.translatedSummary ?? null
 
   if (!title || !description || !url || !language) {
     response.status(400).json({
@@ -104,6 +105,13 @@ resourcesRouter.post('/', async (request, response) => {
   `
 
   try {
+    const translatedSummary =
+      translatedSummaryInput ??
+      (await translateSummary({
+        text: description,
+        sourceLanguage: language,
+      }))
+
     const { rows } = await pool.query(insertQuery, [
       title,
       description,
@@ -129,7 +137,7 @@ resourcesRouter.put('/:id', async (request, response) => {
   const url = request.body.url?.toString().trim()
   const language = request.body.language?.toString().trim()
   const tags = parseTags(request.body.tags)
-  const translatedSummary = request.body.translatedSummary ?? null
+  const translatedSummaryInput = request.body.translatedSummary ?? null
 
   if (!Number.isInteger(id) || id <= 0) {
     response.status(400).json({ error: 'id must be a positive integer.' })
@@ -165,6 +173,13 @@ resourcesRouter.put('/:id', async (request, response) => {
   `
 
   try {
+    const translatedSummary =
+      translatedSummaryInput ??
+      (await translateSummary({
+        text: description,
+        sourceLanguage: language,
+      }))
+
     const { rows } = await pool.query(updateQuery, [
       title,
       description,
