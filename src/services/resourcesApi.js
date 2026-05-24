@@ -35,3 +35,19 @@ export async function createResource(payload) {
     body: JSON.stringify(payload),
   })
 }
+
+export async function updateResource(id, payload) {
+  return request(`/api/resources/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function deleteResource(id) {
+  return request(`/api/resources/${id}`, {
+    method: 'DELETE',
+  })
+}

@@ -1,55 +1,12 @@
 import { useEffect, useState } from 'react'
 import heroImg from './assets/hero.png'
 import './App.css'
-import { createResource, fetchResources } from './services/resourcesApi'
-
-const initialResources = [
-  {
-    id: 1,
-    title: 'Crisis Text Line',
-    description:
-      'Free text-based crisis counseling available 24/7 with trained responders.',
-    language: 'English',
-    tags: ['crisis', 'text', 'youth'],
-    url: 'https://www.crisistextline.org/',
-  },
-  {
-    id: 2,
-    title: 'Linea 988 en Espanol',
-    description:
-      'Spanish-language phone support for urgent emotional distress in the US.',
-    language: 'Spanish',
-    tags: ['hotline', 'crisis', 'phone'],
-    url: 'https://988lifeline.org/help-yourself/en-espanol/',
-  },
-  {
-    id: 3,
-    title: 'Naseeha Muslim Youth Helpline',
-    description:
-      'Confidential support for Muslim youth, including concerns around stress and anxiety.',
-    language: 'Arabic',
-    tags: ['youth', 'faith', 'phone'],
-    url: 'https://naseeha.org/',
-  },
-  {
-    id: 4,
-    title: 'Kids Help Phone',
-    description:
-      'Mental health support and counseling access for young people across Canada.',
-    language: 'French',
-    tags: ['youth', 'chat', 'phone'],
-    url: 'https://kidshelpphone.ca/',
-  },
-  {
-    id: 5,
-    title: 'Mind in Mandarin Community Guide',
-    description:
-      'Practical self-help and community mental health resources in Mandarin.',
-    language: 'Mandarin',
-    tags: ['community', 'self-help', 'guide'],
-    url: 'https://www.mind.org.uk/information-support/',
-  },
-]
+import {
+  createResource,
+  deleteResource,
+  fetchResources,
+  updateResource,
+} from './services/resourcesApi'
 
 const initialFormState = {
   title: '',
@@ -81,8 +38,11 @@ function App() {
   const [errors, setErrors] = useState({})
   const [statusMessage, setStatusMessage] = useState('')
   const [resourceLoadError, setResourceLoadError] = useState('')
+  const [resourceActionError, setResourceActionError] = useState('')
   const [isLoadingResources, setIsLoadingResources] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [editingResourceId, setEditingResourceId] = useState(null)
+  const [deletingResourceId, setDeletingResourceId] = useState(null)
   const [selectedLanguage, setSelectedLanguage] = useState('All languages')
   const [selectedTag, setSelectedTag] = useState('All topics')
 
@@ -92,18 +52,11 @@ function App() {
     const loadResources = async () => {
       setIsLoadingResources(true)
       setResourceLoadError('')
+      setResourceActionError('')
 
       try {
         const apiResources = await fetchResources()
         if (!isMounted) {
-          return
-        }
-
-        if (apiResources.length === 0) {
-          setResources(initialResources)
-          setResourceLoadError(
-            'API returned no resources. Showing local starter data for now.',
-          )
           return
         }
 
@@ -117,9 +70,9 @@ function App() {
           return
         }
 
-        setResources(initialResources)
+        setResources([])
         setResourceLoadError(
-          `Could not load resources from API. Showing local data instead. ${error.message}`,
+          `Could not load resources from API. ${error.message}`,
         )
       } finally {
         if (isMounted) {
@@ -160,6 +113,7 @@ function App() {
     setFormData((previous) => ({ ...previous, [name]: value }))
     setErrors((previous) => ({ ...previous, [name]: '' }))
     setStatusMessage('')
+    setResourceActionError('')
   }
 
   const validateForm = () => {
@@ -204,6 +158,7 @@ function App() {
     }
 
     setErrors({})
+    setResourceActionError('')
     const normalizedTags = formData.tags
       .split(',')
       .map((tag) => tag.trim())
@@ -218,22 +173,75 @@ function App() {
     setIsSubmitting(true)
 
     try {
-      const createdResource = await createResource(nextResource)
-      const normalizedResource = normalizeResource(createdResource, Date.now())
-      setResources((previous) => [normalizedResource, ...previous])
-      setStatusMessage('Resource submitted successfully.')
-      setFormData(initialFormState)
-    } catch (error) {
-      const fallbackResource = {
-        ...nextResource,
-        id: Date.now(),
+      if (editingResourceId) {
+        const updatedResource = await updateResource(editingResourceId, nextResource)
+        const normalizedResource = normalizeResource(
+          updatedResource,
+          editingResourceId,
+        )
+        setResources((previous) =>
+          previous.map((resource) =>
+            resource.id === editingResourceId ? normalizedResource : resource,
+          ),
+        )
+        setStatusMessage('Resource updated successfully.')
+      } else {
+        const createdResource = await createResource(nextResource)
+        const normalizedResource = normalizeResource(createdResource, Date.now())
+        setResources((previous) => [normalizedResource, ...previous])
+        setStatusMessage('Resource submitted successfully.')
       }
-      setResources((previous) => [fallbackResource, ...previous])
-      setStatusMessage(
-        `API unavailable, so the resource was saved locally. ${error.message}`,
-      )
+
+      setFormData(initialFormState)
+      setEditingResourceId(null)
+    } catch (error) {
+      setResourceActionError(error.message)
+      setStatusMessage('Could not save resource.')
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handleEditResource = (resource) => {
+    setFormData({
+      title: resource.title,
+      description: resource.description,
+      url: resource.url,
+      language: resource.language,
+      tags: resource.tags.join(', '),
+    })
+    setEditingResourceId(resource.id)
+    setErrors({})
+    setStatusMessage('')
+    setResourceActionError('')
+  }
+
+  const handleCancelEdit = () => {
+    setEditingResourceId(null)
+    setFormData(initialFormState)
+    setErrors({})
+    setStatusMessage('')
+    setResourceActionError('')
+  }
+
+  const handleDeleteResource = async (resourceId) => {
+    setDeletingResourceId(resourceId)
+    setStatusMessage('')
+    setResourceActionError('')
+
+    try {
+      await deleteResource(resourceId)
+      setResources((previous) =>
+        previous.filter((resource) => resource.id !== resourceId),
+      )
+      setStatusMessage('Resource deleted successfully.')
+      if (editingResourceId === resourceId) {
+        handleCancelEdit()
+      }
+    } catch (error) {
+      setResourceActionError(error.message)
+    } finally {
+      setDeletingResourceId(null)
     }
   }
 
@@ -295,6 +303,9 @@ function App() {
             {resourceLoadError && (
               <p className="api-feedback error-message">{resourceLoadError}</p>
             )}
+            {resourceActionError && (
+              <p className="api-feedback error-message">{resourceActionError}</p>
+            )}
           </div>
 
           <div className="resource-filters" aria-label="Resource filters">
@@ -348,6 +359,25 @@ function App() {
                   <a href={resource.url} target="_blank" rel="noreferrer">
                     Visit resource
                   </a>
+                  <div className="resource-actions">
+                    <button
+                      type="button"
+                      className="inline-btn"
+                      onClick={() => handleEditResource(resource)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="inline-btn danger-btn"
+                      onClick={() => handleDeleteResource(resource.id)}
+                      disabled={deletingResourceId === resource.id}
+                    >
+                      {deletingResourceId === resource.id
+                        ? 'Deleting...'
+                        : 'Delete'}
+                    </button>
+                  </div>
                 </article>
               ))}
             </div>
@@ -369,7 +399,9 @@ function App() {
 
         <section id="submit" className="submit-section">
           <div className="submit-header">
-            <h2>Submit a new resource</h2>
+            <h2>
+              {editingResourceId ? 'Update resource' : 'Submit a new resource'}
+            </h2>
             <p>
               Share a trusted resource with language tags so others can discover
               support in a familiar language.
@@ -452,8 +484,23 @@ function App() {
               className="primary-btn form-submit-btn"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Submitting...' : 'Submit resource'}
+              {isSubmitting
+                ? editingResourceId
+                  ? 'Updating...'
+                  : 'Submitting...'
+                : editingResourceId
+                  ? 'Update resource'
+                  : 'Submit resource'}
             </button>
+            {editingResourceId && (
+              <button
+                type="button"
+                className="secondary-btn form-submit-btn"
+                onClick={handleCancelEdit}
+              >
+                Cancel edit
+              </button>
+            )}
 
             {statusMessage && <p className="form-status">{statusMessage}</p>}
           </form>

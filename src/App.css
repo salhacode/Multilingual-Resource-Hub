@@ -240,6 +240,30 @@ main {
   text-decoration: underline;
 }
 
+.resource-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.inline-btn {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  background: #fff;
+  color: var(--text-h);
+  font: inherit;
+  cursor: pointer;
+}
+
+.inline-btn:hover {
+  border-color: var(--accent-border);
+}
+
+.danger-btn {
+  color: #9b1f5d;
+}
+
 .empty-state {
   margin: 0;
   border: 1px dashed var(--accent-border);
