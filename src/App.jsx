@@ -401,11 +401,6 @@ function App() {
             aria-labelledby="supported-languages-heading"
           >
             <h3 id="supported-languages-heading">Supported languages</h3>
-            <p>
-              These are the primary languages we highlight for tagging and
-              filters. Resources in the library may include additional languages
-              as the community grows.
-            </p>
             <ul className="language-chip-list">
               {SUPPORTED_LANGUAGES.map((language) => (
                 <li key={language}>
